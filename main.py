@@ -21,34 +21,48 @@ hints:
 
 api_documentation = "https://open-meteo.com/en/docs"
 
-import time
 import datetime
 import os
 import requests
-
-from functions import (
-     save_query_file,
-     weather,
-     rain_or_not,
-)
+import geocoder
 
 
 def check_weather():
-    with open("", "r") as f:#
+    with open("", "r") as f:
+
+
+def save_query_file(query_results):
+    with open(query_results, "w") as f:
+
+def weather(latitude, longitude, provided_date):
+    api_endpoint = f"https://api.open-meteo.com/v1/forecast?latitude={latitude}&longitude={longitude}&daily="
+    f"precipitation_sum&timezone=Europe%2FLondon&start_date={provided_date}&end_date={provided_date}"
+
+    response = request.get()
+
+    # rain rapport / if it will rain or not / don't know
+def rain_or_not(weather_report):
+    if weather_report > 0.0:
+        print(f"It will rain {weather_report} mm")
+    elif weather_report == 0.0:
+        print("It will not rain")
+    else:
+        print("I don't know")
 
 
 # if file does exist
 def main():
     file = os.path.exists("")
-    # latitude, longitude
-
 
 # ask the user for the date
 today = datetime.date.today()
 user_date_weather = input("Enter a date in YYYY-mm-dd format or press enter to see the next day: ")
-if
 
-# if no date inserted then it will automatically go to the next day.
 if not user_date_weather:
-    next_day = datetime.date.today() + time.
-    # + 1? how
+    next_day = datetime.date.today() + datetime.timedelta(days=1)
+
+#get users location
+latitude = input("Enter longitude: ")
+longitude = input("Enter longitude: ")
+
+
