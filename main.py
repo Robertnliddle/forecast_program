@@ -18,29 +18,37 @@ hints:
 - Validate the user input to ensure it's in the correct format.
 
 """
+import datetime
+import requests
+
 
 api_documentation = "https://open-meteo.com/en/docs"
 
-import datetime
-import os
-import requests
-import geocoder
+query_results = "query_results.txt"
 
 
-def check_weather():
-    with open("", "r") as f:
+def save_query_file(date, result):
+    with open(query_results, "a") as f:
+        f.write(f"{date} / {result}\n")
 
 
-def save_query_file(query_results):
-    with open(query_results, "w") as f:
+def read_query_file():
+    weather = {}
+    with open(query_results, "r") as f:
+        for line in f:
+            date,value = line.strip().split(" / ")
+            weather[date] = float(value)
+    return weather
 
-def weather(latitude, longitude, provided_date):
-    api_endpoint = f"https://api.open-meteo.com/v1/forecast?latitude={latitude}&longitude={longitude}&daily="
-    f"precipitation_sum&timezone=Europe%2FLondon&start_date={provided_date}&end_date={provided_date}"
 
-    response = request.get()
+def get_weather(latitude, longitude, provided_date):
+    api_endpoint = f"https://api.open-meteo.com/v1/forecast?latitude={latitude}&longitude={longitude}&daily=" \
+                   f"precipitation_sum&timezone=Europe%2FLondon&start_date={provided_date}&end_date={provided_date}"
 
-    # rain rapport / if it will rain or not / don't know
+    response = requests.get(api_endpoint).json()
+    return response["daily"]["precipitation_sum"][0]
+
+
 def rain_or_not(weather_report):
     if weather_report > 0.0:
         print(f"It will rain {weather_report} mm")
@@ -50,19 +58,22 @@ def rain_or_not(weather_report):
         print("I don't know")
 
 
-# if file does exist
-def main():
-    file = os.path.exists("")
-
 # ask the user for the date
 today = datetime.date.today()
-user_date_weather = input("Enter a date in YYYY-mm-dd format or press enter to see the next day: ")
+provided_date = input("Enter a date in YYYY-mm-dd format or press enter to see the next day: ")
 
-if not user_date_weather:
+if not provided_date:
     next_day = datetime.date.today() + datetime.timedelta(days=1)
+    provided_date = next_day.strftime("%Y-%m-%d")
 
-#get users location
-latitude = input("Enter longitude: ")
-longitude = input("Enter longitude: ")
+latitude = 35.917973
+longitude = 14.409943
 
+weather = read_query_file()
+if provided_date in weather:
+    rain_or_not(weather[provided_date])
+else:
+    expected_weather = get_weather(latitude, longitude, provided_date)
+    save_query_file(provided_date, expected_weather)
+    rain_or_not(expected_weather)
 
